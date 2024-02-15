@@ -1,6 +1,4 @@
-// read file from path
-import fs = require("fs");
-import path = require("path");
+import { getLinesInFile } from "./utils";
 
 const digits = [
   "zero",
@@ -15,12 +13,7 @@ const digits = [
   "nine",
 ];
 
-// const digits = ["three"];
-
-const filePath = path.join(__dirname, "..", "inputs", "day-1.txt");
-const file = fs.readFileSync(filePath, "utf-8");
-const lines = file.split("\n");
-// const lines = ["rbgfivefive3eightthree"];
+const lines = getLinesInFile("day-1");
 let sum = 0;
 for (let line of lines) {
   let firstNumber = 0,
