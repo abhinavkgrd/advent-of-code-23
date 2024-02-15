@@ -15,9 +15,12 @@ const digits = [
   "nine",
 ];
 
+// const digits = ["three"];
+
 const filePath = path.join(__dirname, "..", "inputs", "day-1.txt");
 const file = fs.readFileSync(filePath, "utf-8");
 const lines = file.split("\n");
+// const lines = ["rbgfivefive3eightthree"];
 let sum = 0;
 for (let line of lines) {
   let firstNumber = 0,
@@ -37,15 +40,24 @@ for (let line of lines) {
     i++;
   }
 
+  // console.log("og", firstNumber, lastNumber);
   i = 0;
   for (let digit of digits) {
+    // console.log("digit", digit);
     const firstIndex = line.indexOf(digit);
+    // console.log("firstIndex", firstIndex);
     if (firstIndex !== -1 && firstIndex < firstPosition) {
+      console.log("found new first Number", digit);
       firstNumber = i;
+
+      firstPosition = firstIndex;
     }
     const lastIndex = line.lastIndexOf(digit);
+    // console.log("lastIndex", firstIndex);
     if (lastIndex !== -1 && lastIndex > lastPosition) {
+      console.log("found new last Number", digit);
       lastNumber = i;
+      lastPosition = lastIndex;
     }
     i++;
   }
