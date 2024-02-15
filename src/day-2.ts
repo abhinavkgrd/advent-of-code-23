@@ -11,12 +11,15 @@ const MAX_BLUE_DICE = 14;
 // let id = 1;
 let ans = 0;
 for (const line of lines) {
-  console.log(line);
+  // console.log(line);
   const [gameID, roundsString] = line.split(":");
   const id = Number(gameID.split(" ")[1]);
   const rounds = roundsString.split(";");
   // console.log(rounds);
   let valid = true;
+  let maxRed = 0;
+  let maxBlue = 0;
+  let maxGreen = 0;
   for (const round of rounds) {
     const dicesCounts = round.split(",");
     for (let diceCount of dicesCounts) {
@@ -24,18 +27,21 @@ for (const line of lines) {
         .split(" ")
         .map((x) => Number(x))
         .filter((x) => !!x)[0];
-      console.log(diceCount, count);
-      if (diceCount.includes("red") && count > MAX_RED_DICE) {
-        valid = false;
-        break;
+      // console.log(diceCount, count);
+      if (diceCount.includes("red")) {
+        if (maxRed < count) {
+          maxRed = count;
+        }
       }
-      if (diceCount.includes("blue") && count > MAX_BLUE_DICE) {
-        valid = false;
-        break;
+      if (diceCount.includes("blue")) {
+        if (maxBlue < count) {
+          maxBlue = count;
+        }
       }
-      if (diceCount.includes("green") && count > MAX_GREEN_DICE) {
-        valid = false;
-        break;
+      if (diceCount.includes("green")) {
+        if (maxGreen < count) {
+          maxGreen = count;
+        }
       }
     }
     if (!valid) {
@@ -43,8 +49,8 @@ for (const line of lines) {
     }
   }
   if (valid) {
-    console.log("id", id, "isValid", valid, "ans", ans);
-    ans += id;
+    ans += maxRed * maxGreen * maxBlue;
+    console.log(maxRed, maxGreen, maxBlue, ans);
   }
   // id++;
 }
