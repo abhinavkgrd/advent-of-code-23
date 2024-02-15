@@ -20,15 +20,14 @@ const file = fs.readFileSync(filePath, "utf-8");
 const lines = file.split("\n");
 let sum = 0;
 for (let line of lines) {
-  console.log(line);
   let firstNumber = 0,
-    firstPosition = 0;
+    firstPosition = -1;
   let lastNumber = 0,
-    lastPosition = 0;
+    lastPosition = Number.MAX_SAFE_INTEGER;
   let i = 0;
   for (let letter of line) {
     if (!Number.isNaN(Number(letter))) {
-      if (typeof firstNumber === "undefined") {
+      if (firstPosition === -1) {
         firstNumber = Number(letter);
         firstPosition = i;
       }
@@ -39,21 +38,21 @@ for (let line of lines) {
   }
 
   i = 0;
-  console.log("og", firstNumber, lastNumber);
   for (let digit of digits) {
     const firstIndex = line.indexOf(digit);
-    if (firstIndex !== -1) {
-      console.log("found number");
-      if (firstIndex < firstPosition) {
-        firstNumber = i;
-      } else if (firstIndex > lastPosition) {
-        lastNumber = i;
-      }
+    if (firstIndex !== -1 && firstIndex < firstPosition) {
+      firstNumber = i;
+    }
+    const lastIndex = line.lastIndexOf(digit);
+    if (lastIndex !== -1 && lastIndex > lastPosition) {
+      lastNumber = i;
     }
     i++;
   }
-  const number = firstNumber * 10 + lastNumber;
-  console.log(line, firstNumber, lastNumber, number);
-  sum += Number(number);
+  if (firstPosition !== -1 && lastPosition !== Number.MAX_SAFE_INTEGER) {
+    const number = firstNumber * 10 + lastNumber;
+    console.log(line, firstNumber, lastNumber, number);
+    sum += Number(number);
+  }
 }
 console.log(sum);
