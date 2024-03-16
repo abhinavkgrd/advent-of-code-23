@@ -2,11 +2,17 @@ import { getLinesInFile } from "./utils";
 
 const lines = getLinesInFile("day-5");
 
-const seeds = lines[0]
+const combinedSeedRanges = lines[0]
   .split(":")[1]
   .split(" ")
   .filter((x) => !!x)
   .map((x) => Number(x));
+
+const seedRanges = [];
+
+for (let i = 0; i < combinedSeedRanges.length; i += 2) {
+  seedRanges.push([combinedSeedRanges[i], combinedSeedRanges[i + 1]]);
+}
 
 const mapStarts = [
   lines.findIndex((x) => x === "seed-to-soil map:"),
@@ -37,30 +43,55 @@ for (const rawMap of rawMaps) {
   }
   maps.push(map);
 }
-const locations = [];
 
-for (let seed of seeds) {
-  let mapNumber = 0;
-  let id = seed;
-  //   let path = `${id}->`;
-  while (mapNumber < 7) {
-    const map = maps[mapNumber];
-    for (let entry of map) {
-      if (id >= entry[1] && id < entry[1] + entry[2]) {
-        id = entry[0] + id - entry[1];
-        break;
+maps.forEach((map) => map.sort((entry1, entry2) => entry1[1] - entry2[1]));
+
+let sourceRanges = seedRanges.sort((x, y) => x[0] - y[0]);
+
+for (let mapNumber = 0; mapNumber < 7; mapNumber++) {
+  const map = maps[mapNumber];
+  let i = 0,
+    j = 0;
+  const destRanges = [];
+  while (i < sourceRanges.length && j < map.length) {
+    // console.log("loop start", "i: ", i, "j: ", j);
+    const sourceRange: number[] = sourceRanges[i];
+    const mapEntry = map[j];
+    // console.log("sourceRange", sourceRange);
+    // console.log("mapEntry", mapEntry);
+    if (
+      sourceRange[0] >= mapEntry[1] &&
+      sourceRange[0] < mapEntry[1] + mapEntry[2]
+    ) {
+      const startOffset = sourceRange[0] - mapEntry[1];
+      const newRangeSt = mapEntry[0] + startOffset;
+      const newRangeLength = Math.min(
+        sourceRange[1],
+        mapEntry[2] - startOffset
+      );
+      destRanges.push([newRangeSt, newRangeLength]);
+      //   console.log("c1:destRange", destRanges);
+      if (newRangeLength < sourceRange[1]) {
+        const updatedSeedRange = sourceRange[0] + newRangeLength;
+        const updatedSeedLength = sourceRange[1] - newRangeLength;
+        sourceRanges[i] = [updatedSeedRange, updatedSeedLength];
+        j++;
+      } else {
+        i++;
       }
+    } else {
+      j++;
     }
-    // path += `${id}->`;
-    mapNumber++;
   }
-  //   console.log(path);
-  locations.push(id);
+  //   console.log("loop end", "i: ", i, "j: ", j);
+  if (i < sourceRanges.length) {
+    destRanges.push(...sourceRanges.slice(i));
+    // console.log("c2:destRange", destRanges);
+  }
+  //   console.log("destRange", destRanges);
+  sourceRanges = destRanges.sort((x, y) => x[0] - y[0]);
 }
 
-let ans = Number.MAX_SAFE_INTEGER;
+// console.log("sourceRanges", sourceRanges);
 
-for (let location of locations) {
-  ans = Math.min(ans, location);
-}
-console.log(ans);
+console.log("ans", sourceRanges[0][0]);
