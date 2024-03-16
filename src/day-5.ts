@@ -2,6 +2,17 @@ import { getLinesInFile } from "./utils";
 
 const lines = getLinesInFile("day-5");
 
+/* DATA FORMAT
+
+Line 1: `seeds: ${line ranges of seed numbers}`
+
+example-> seeds: 79 14 55 13
+means two seed range (79,14) , (55,13)
+where the first value represent the range start and second the range length
+*/
+
+// this parse the numbers and generates an array out of it
+// in above case , combinedSeedRanges= [79, 14, 55, 13]
 const combinedSeedRanges = lines[0]
   .split(":")[1]
   .split(" ")
@@ -10,10 +21,14 @@ const combinedSeedRanges = lines[0]
 
 const seedRanges = [];
 
+// seed range separate the range into range array
+// for example case [[79, 14], [55, 13]]
 for (let i = 0; i < combinedSeedRanges.length; i += 2) {
   seedRanges.push([combinedSeedRanges[i], combinedSeedRanges[i + 1]]);
 }
 
+// following lines describe the conversion maps divided in section based on the titles.
+// so we get the title line numbers to split them based on it.
 const mapStarts = [
   lines.findIndex((x) => x === "seed-to-soil map:"),
   lines.findIndex((x) => x === "soil-to-fertilizer map:"),
@@ -44,7 +59,55 @@ for (const rawMap of rawMaps) {
   maps.push(map);
 }
 
+// Maps contain the parsed mapping data in array of array of number format
+// for the test-case
+// seed-to-soil map:
+// 50 98 2
+// 52 50 48
+// maps[0]= [[50,98,2], [52,50,48]]
+
 maps.forEach((map) => map.sort((entry1, entry2) => entry1[1] - entry2[1]));
+
+/*
+The problem statement wants us to find 
+the lowest location number that corresponds to any of the initial seed numbers.
+
+essentially this requires us to convert the seed range provided to us into location range 
+that this seeds would be planted on.
+
+A simple brute force approach of looping through all the seeds in the range and finding there 
+corresponding location can be very expensive as the range can be very large.
+
+Better solution is to work with the ranges as it is and convert them to 
+destination ranges using the mapping.
+
+Lets first reduce the problem from using 7 maps to just single map, as the same process,
+can be repeated n number of times, as the destination range of first mapping conversion
+becomes the source range for the next map and the process repeats.
+
+So, Now the problem statement is we have two list of ranges, and we have to find the 
+overlapping values in those two ranges. as those will be the values that will be converted
+to destination value and rest being as the source value.
+
+This problem can be solved by using a two pointer approach, where we sort both the list based on
+their starting values and looping through them increasing the value of the pointer for the list 
+which ever starts lagging behind.
+
+For example : 
+list 1 : (1,10) , (12, 9) , (22,12)
+list 2 : (7,6), (14,5) ,(24,10)
+
+here we start by first checking the overlap between the first pair, we see there is a overlap,
+so note the overlap and then seeing that the end of the list 2 is greater than list one,
+it is possible that the list 2 value overlaps with more values in list one, so we move the list
+1 pointer.
+
+Comparing second pair of list 1 with the first pair of list 2, we do see a overlap, 
+and we no see that the the end of list 1 is greater than 2,so we move the pointer of list one 
+and keep on doing the comparison.
+
+This forms the base logic of our solution.
+*/
 
 let sourceRanges = seedRanges.sort((x, y) => x[0] - y[0]);
 
