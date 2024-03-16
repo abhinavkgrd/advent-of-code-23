@@ -59,28 +59,29 @@ for (let mapNumber = 0; mapNumber < 7; mapNumber++) {
     const mapEntry = map[j];
     // console.log("sourceRange", sourceRange);
     // console.log("mapEntry", mapEntry);
-    if (
+    let destRangeSt, destRangeLength;
+    if (sourceRange[0] < mapEntry[1]) {
+      destRangeSt = sourceRange[0];
+      destRangeLength = Math.min(mapEntry[1] - sourceRange[0], sourceRange[1]);
+    } else if (
       sourceRange[0] >= mapEntry[1] &&
       sourceRange[0] < mapEntry[1] + mapEntry[2]
     ) {
       const startOffset = sourceRange[0] - mapEntry[1];
-      const newRangeSt = mapEntry[0] + startOffset;
-      const newRangeLength = Math.min(
-        sourceRange[1],
-        mapEntry[2] - startOffset
-      );
-      destRanges.push([newRangeSt, newRangeLength]);
+      destRangeSt = mapEntry[0] + startOffset;
+      destRangeLength = Math.min(sourceRange[1], mapEntry[2] - startOffset);
       //   console.log("c1:destRange", destRanges);
-      if (newRangeLength < sourceRange[1]) {
-        const updatedSeedRange = sourceRange[0] + newRangeLength;
-        const updatedSeedLength = sourceRange[1] - newRangeLength;
-        sourceRanges[i] = [updatedSeedRange, updatedSeedLength];
-        j++;
-      } else {
-        i++;
-      }
     } else {
       j++;
+      continue;
+    }
+    destRanges.push([destRangeSt, destRangeLength]);
+    if (destRangeLength < sourceRange[1]) {
+      const updatedSourceRange = sourceRange[0] + destRangeLength;
+      const updatedSourceLength = sourceRange[1] - destRangeLength;
+      sourceRanges[i] = [updatedSourceRange, updatedSourceLength];
+    } else {
+      i++;
     }
   }
   //   console.log("loop end", "i: ", i, "j: ", j);
